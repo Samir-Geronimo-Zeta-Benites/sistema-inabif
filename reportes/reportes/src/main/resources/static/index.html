@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INABIF — Sistema de Reportes</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login">
+  <div class="login-image-panel">
+    <div class="deco-circle deco-c1"></div>
+    <div class="deco-circle deco-c2"></div>
+    <div class="deco-circle deco-c3"></div>
+
+    <div class="login-image-content">
+      <div class="login-logo-big">IN</div>
+      <h1>Sistema de<br>Reportes<br>INABIF</h1>
+      <p>Plataforma integrada para la gestión y seguimiento de atenciones, beneficiarios y servicios sociales.</p>
+
+      <div class="login-image-badges">
+        <span class="badge-chip"><i class="ti ti-shield-check"></i> Acceso Seguro</span>
+        <span class="badge-chip"><i class="ti ti-database"></i> SQL Server</span>
+        <span class="badge-chip"><i class="ti ti-chart-bar"></i> Reportes</span>
+      </div>
+
+      <div class="login-image-footer">© 2025 INABIF — Ministerio de la Mujer y Poblaciones Vulnerables</div>
+    </div>
+  </div>
+
+  <div class="login-form-panel">
+    <div class="login-form-inner">
+      <div class="logo-small">
+        <div class="logo-icon-small">IN</div>
+        <div class="logo-text"><span>INA</span>BIF</div>
+      </div>
+
+      <h2>Bienvenido de vuelta</h2>
+      <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
+
+      <div class="form-group">
+        <label>Usuario</label>
+        <div class="input-icon-wrap">
+          <i class="ti ti-user i-icon" id="icon-user"></i>
+          <input type="text" class="form-input" placeholder="Usuario de red" id="inp-user">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña</label>
+        <div class="input-icon-wrap">
+          <i class="ti ti-lock i-icon" id="icon-pass"></i>
+          <input type="password" class="form-input" placeholder="••••••••" id="inp-pass">
+        </div>
+      </div>
+
+      <div class="login-options">
+        <label><input type="checkbox"> Recordar sesión</label>
+        <a href="#">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button class="btn-login" id="btn-login" onclick="doLogin()">
+        <span class="spinner"></span>
+        <span class="btn-text">Iniciar Sesión</span>
+      </button>
+
+      <div class="login-footer-small">
+        Conexión encriptada — SQL Server 2022<br>
+        <strong>localhost:1433 · BD: informe</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="screen-dashboard">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">
+        <div class="logo-icon-small">IN</div>
+        <div class="logo-text"><span>INA</span>BIF</div>
+      </div>
+      <div class="topbar-divider"></div>
+      <span class="topbar-title">Sistema de Reportes</span>
+    </div>
+
+    <div class="topbar-right">
+      <button class="topbar-btn topbar-btn-ghost" onclick="showToast('Notificaciones al día','ok')">
+        <i class="ti ti-bell"></i>
+      </button>
+
+      <div class="topbar-user">
+        <div class="topbar-avatar">AD</div>
+        <div class="topbar-user-info">
+          <div class="topbar-user-name">Administrador</div>
+          <div class="topbar-user-role">INABIF · Lima</div>
+        </div>
+      </div>
+
+      <button class="topbar-btn" onclick="doLogout()">
+        <i class="ti ti-logout"></i> Salir
+      </button>
+    </div>
+  </div>
+
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <span class="sidebar-section-label">Principal</span>
+
+      <div class="sidebar-item active" id="nav-tables" onclick="showSection('tables')">
+        <i class="ti ti-table"></i> Gestión de Tablas
+      </div>
+
+      <div class="sidebar-item" id="nav-reports" onclick="showSection('reports')">
+        <i class="ti ti-chart-bar"></i> Ver Reportes
+      </div>
+
+      <div class="sidebar-item" id="nav-dashboard" onclick="showSection('dashboard')">
+        <i class="ti ti-layout-dashboard"></i> Dashboard
+      </div>
+
+      <span class="sidebar-section-label">Sistema</span>
+
+      <div class="sidebar-item" onclick="showToast('Módulo en construcción','ok')">
+        <i class="ti ti-settings"></i> Configuración
+      </div>
+
+      <div class="sidebar-item" onclick="showToast('Módulo en construcción','ok')">
+        <i class="ti ti-users"></i> Usuarios
+      </div>
+
+      <div class="sidebar-item" onclick="showToast('Módulo en construcción','ok')">
+        <i class="ti ti-file-description"></i> Auditoría
+      </div>
+
+      <div class="db-card">
+        <div class="db-title"><i class="ti ti-database"></i> Conexión BD</div>
+        <div class="db-text">localhost:1433<br><strong>informe</strong></div>
+        <div class="db-status"><span></span> Conectado</div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+      <!-- GESTIÓN DE TABLAS -->
+      <section id="section-tables">
+        <div class="section-header">
+          <h2>Gestión de Tablas</h2>
+          <p>Registra y administra los datos de las tablas del sistema INABIF</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="ti ti-users"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="count-1">248</div>
+              <div class="stat-label">Atendidos en Servicios</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="ti ti-heart-handshake"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="count-2">134</div>
+              <div class="stat-label">Beneficiarios Asistencias</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="ti ti-clipboard-list"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="count-3">89</div>
+              <div class="stat-label">Beneficiarios Atendidos</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-bar">
+          <div class="actions-bar-left">
+            <span class="info-pill"><i class="ti ti-database"></i> 3 tablas disponibles</span>
+          </div>
+          <button class="btn-reports" onclick="showSection('reports')">
+            <i class="ti ti-chart-bar"></i> Ver Reportes
+          </button>
+        </div>
+
+        <div class="tables-grid">
+          <div class="table-card">
+            <div class="table-card-icon"><i class="ti ti-users"></i></div>
+            <h3>Atendidos_Servicio</h3>
+            <p>Registro de personas atendidas por tipo de servicio social en los centros INABIF.</p>
+            <div class="table-card-meta">
+              <span class="table-badge">Activa</span>
+              <span class="table-count" id="badge-count-1">248 registros</span>
+            </div>
+            <button class="btn-add" onclick="openModal('Atendidos_Servicio')">
+              <i class="ti ti-plus"></i> Agregar Registro
+            </button>
+          </div>
+
+          <div class="table-card">
+            <div class="table-card-icon"><i class="ti ti-heart-handshake"></i></div>
+            <h3>Beneficiarios_Asistencia_clean</h3>
+            <p>Datos limpios de beneficiarios que recibieron asistencias y apoyos sociales.</p>
+            <div class="table-card-meta">
+              <span class="table-badge">Activa</span>
+              <span class="table-count" id="badge-count-2">134 registros</span>
+            </div>
+            <button class="btn-add" onclick="openModal('Beneficiarios_Asistencia_clean')">
+              <i class="ti ti-plus"></i> Agregar Registro
+            </button>
+          </div>
+
+          <div class="table-card">
+            <div class="table-card-icon"><i class="ti ti-clipboard-list"></i></div>
+            <h3>Beneficiarios_Atendidos_clean</h3>
+            <p>Consolidado limpio de beneficiarios atendidos por los programas y servicios INABIF.</p>
+            <div class="table-card-meta">
+              <span class="table-badge">Activa</span>
+              <span class="table-count" id="badge-count-3">89 registros</span>
+            </div>
+            <button class="btn-add" onclick="openModal('Beneficiarios_Atendidos_clean')">
+              <i class="ti ti-plus"></i> Agregar Registro
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- REPORTES -->
+      <section id="section-reports">
+        <div class="section-header">
+          <h2>Ver Reportes</h2>
+          <p>Selecciona la tabla, mes y año para cargar los datos del reporte</p>
+        </div>
+
+        <div class="report-filter-card">
+          <h3>Filtros de Consulta</h3>
+          <div class="sub">Configura los parámetros para generar tu reporte</div>
+
+          <div class="filters-row">
+            <div class="filter-group">
+              <label>Tabla</label>
+              <select class="filter-select" id="sel-table">
+                <option value="">— Seleccionar tabla —</option>
+                <option value="Atendidos_Servicio">Atendidos_Servicio</option>
+                <option value="Beneficiarios_Asistencia_clean">Beneficiarios_Asistencia_clean</option>
+                <option value="Beneficiarios_Atendidos_clean">Beneficiarios_Atendidos_clean</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label>Mes</label>
+              <select class="filter-select" id="sel-month">
+                <option value="">— Seleccionar mes —</option>
+                <option value="01">01 — Enero</option>
+                <option value="02">02 — Febrero</option>
+                <option value="03">03 — Marzo</option>
+                <option value="04">04 — Abril</option>
+                <option value="05">05 — Mayo</option>
+                <option value="06">06 — Junio</option>
+                <option value="07">07 — Julio</option>
+                <option value="08">08 — Agosto</option>
+                <option value="09">09 — Septiembre</option>
+                <option value="10">10 — Octubre</option>
+                <option value="11">11 — Noviembre</option>
+                <option value="12">12 — Diciembre</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label>Año</label>
+              <select class="filter-select" id="sel-year">
+                <option value="">— Seleccionar año —</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label>&nbsp;</label>
+              <button class="btn-load" onclick="loadReport()">
+                <i class="ti ti-database-import"></i> Cargar Tabla
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-preview-card" id="report-preview">
+          <div class="preview-header">
+            <h3 id="preview-title">Resultado del Reporte</h3>
+            <div class="preview-header-meta">
+              <span class="preview-badge" id="preview-badge">0 registros</span>
+              <button class="btn-export" onclick="exportExcel()">
+                <i class="ti ti-file-spreadsheet"></i> Exportar Excel
+              </button>
+              <button class="btn-export btn-export-pdf" onclick="exportPdf()">
+                <i class="ti ti-file-type-pdf"></i> Exportar PDF
+              </button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table" id="report-table">
+              <thead id="report-thead"></thead>
+              <tbody id="report-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section id="section-dashboard">
+        <div class="section-header">
+          <h2>Dashboard</h2>
+          <p>Indicadores y análisis visual de atenciones, beneficiarios y servicios</p>
+        </div>
+
+        <div class="dashboard-kpi-row">
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="ti ti-users"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="kpi-atenciones">0</div>
+              <div class="stat-label">Total Atenciones</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="ti ti-heart-handshake"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="kpi-beneficiarios">0</div>
+              <div class="stat-label">Total Beneficiarios</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="ti ti-clipboard-list"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="kpi-servicios">0</div>
+              <div class="stat-label">Servicios Activos</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="ti ti-map-pin"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="kpi-departamentos">0</div>
+              <div class="stat-label">Departamentos</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="chart-card">
+            <h3>¿Qué servicio atiende más beneficiarios?</h3>
+            <canvas id="chartServicios"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>¿Qué género predomina?</h3>
+            <canvas id="chartGenero"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>¿Qué grupo de edad recibe más atención?</h3>
+            <canvas id="chartEdades"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>¿En qué departamentos existe mayor demanda?</h3>
+            <canvas id="chartDepartamentos"></canvas>
+          </div>
+
+          <div class="chart-card chart-card-wide">
+            <h3>¿Qué diferencias existen entre los tres servicios?</h3>
+            <canvas id="chartComparativo"></canvas>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;flex:1">
+        <div class="modal-header-icon"><i class="ti ti-table-plus"></i></div>
+        <div>
+          <div class="modal-title" id="modal-title">Agregar Registro</div>
+          <div class="modal-sub" id="modal-sub">Tabla: —</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div id="modal-form-content"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">
+        <i class="ti ti-x"></i> Cerrar
+      </button>
+      <button class="btn-save" onclick="saveRecord()">
+        <i class="ti ti-device-floppy"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i class="ti ti-circle-check" id="toast-icon"></i>
+  <span id="toast-msg">Registro guardado exitosamente</span>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
