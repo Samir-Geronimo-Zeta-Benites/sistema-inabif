@@ -93,12 +93,11 @@ public class DashboardService {
   public List<Map<String, Object>> genero() {
     return jdbcTemplate.queryForList("""
         SELECT
-            servicio + ' - ' + genero AS label,
+            genero AS label,
             COUNT(DISTINCT ID_USU) AS total
         FROM (
             SELECT
-                TIP_CAR AS servicio,
-                CASE 
+                CASE
                     WHEN SEX_USU = 1 THEN 'Masculino'
                     WHEN SEX_USU = 2 THEN 'Femenino'
                     ELSE 'No especificado'
@@ -109,8 +108,7 @@ public class DashboardService {
             UNION ALL
 
             SELECT
-                'Asistencia Económica' AS servicio,
-                CASE 
+                CASE
                     WHEN SEX_USU = 1 THEN 'Masculino'
                     WHEN SEX_USU = 2 THEN 'Femenino'
                     ELSE 'No especificado'
@@ -121,8 +119,7 @@ public class DashboardService {
             UNION ALL
 
             SELECT
-                NOM_SER AS servicio,
-                CASE 
+                CASE
                     WHEN SEX_USU = 1 THEN 'Masculino'
                     WHEN SEX_USU = 2 THEN 'Femenino'
                     ELSE 'No especificado'
@@ -130,9 +127,8 @@ public class DashboardService {
                 ID_USU
             FROM Beneficiarios_Atendidos_clean
         ) x
-        WHERE servicio IS NOT NULL
-        GROUP BY servicio, genero
-        ORDER BY servicio, total DESC
+        GROUP BY genero
+        ORDER BY total DESC
         """);
   }
 
@@ -217,18 +213,30 @@ public class DashboardService {
 
   public List<Map<String, Object>> comparativo() {
     return jdbcTemplate.queryForList("""
-        SELECT 'Atendidos Servicio' AS label, COUNT(DISTINCT ID_USU) AS total
-        FROM Atendidos_Servicio
+        SELECT
+            servicio AS label,
+            total
+        FROM (
+            SELECT
+                'Atendidos Servicio' AS servicio,
+                COUNT(DISTINCT ID_USU) AS total
+            FROM Atendidos_Servicio
 
-        UNION ALL
+            UNION ALL
 
-        SELECT 'Beneficiarios Asistencia' AS label, COUNT(DISTINCT ID_USU) AS total
-        FROM Beneficiarios_Asistencia_clean
+            SELECT
+                'Beneficiarios Asistencia' AS servicio,
+                COUNT(DISTINCT ID_USU) AS total
+            FROM Beneficiarios_Asistencia_clean
 
-        UNION ALL
+            UNION ALL
 
-        SELECT 'Beneficiarios Atendidos' AS label, COUNT(DISTINCT ID_USU) AS total
-        FROM Beneficiarios_Atendidos_clean
+            SELECT
+                'Beneficiarios Atendidos' AS servicio,
+                COUNT(DISTINCT ID_USU) AS total
+            FROM Beneficiarios_Atendidos_clean
+        ) x
+        ORDER BY total DESC
         """);
   }
 }
