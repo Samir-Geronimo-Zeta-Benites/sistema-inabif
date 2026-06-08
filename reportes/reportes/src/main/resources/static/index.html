@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,8 +9,13 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+
+<!-- LOADING BAR -->
+<div class="loading-bar" id="loading-bar" role="status" aria-label="Cargando"></div>
 
 <!-- LOGIN -->
 <div id="screen-login">
@@ -45,24 +50,27 @@
       <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
 
       <div class="form-group">
-        <label>Usuario</label>
+        <label for="inp-user">Usuario</label>
         <div class="input-icon-wrap">
-          <i class="ti ti-user i-icon" id="icon-user"></i>
-          <input type="text" class="form-input" placeholder="Usuario de red" id="inp-user">
+          <i class="ti ti-user i-icon" aria-hidden="true"></i>
+          <input type="text" class="form-input" placeholder="Usuario de red" id="inp-user" name="username" autocomplete="username" maxlength="60" aria-required="true">
         </div>
       </div>
 
       <div class="form-group">
-        <label>Contraseña</label>
+        <label for="inp-pass">Contraseña</label>
         <div class="input-icon-wrap">
-          <i class="ti ti-lock i-icon" id="icon-pass"></i>
-          <input type="password" class="form-input" placeholder="••••••••" id="inp-pass">
+          <i class="ti ti-lock i-icon" aria-hidden="true"></i>
+          <input type="password" class="form-input" placeholder="••••••••" id="inp-pass" name="password" autocomplete="current-password" aria-required="true">
+          <button type="button" class="password-toggle" id="pass-toggle-btn" aria-label="Mostrar contraseña" aria-pressed="false" tabindex="-1">
+            <i class="ti ti-eye"></i>
+          </button>
         </div>
       </div>
 
       <div class="login-options">
-        <label><input type="checkbox"> Recordar sesión</label>
-        <a href="#">¿Olvidaste tu contraseña?</a>
+        <label for="remember-check"><input type="checkbox" id="remember-check"> Recordar usuario</label>
+        <a href="#" aria-label="Recuperar contraseña">¿Olvidaste tu contraseña?</a>
       </div>
 
       <button class="btn-login" id="btn-login" onclick="doLogin()">
@@ -84,6 +92,9 @@
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Abrir menú">
+        <i class="ti ti-menu-2"></i>
+      </button>
       <div class="topbar-logo">
         <div class="logo-icon-small">IN</div>
         <div class="logo-text"><span>INA</span>BIF</div>
@@ -93,6 +104,9 @@
     </div>
 
     <div class="topbar-right">
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+        <i class="ti ti-moon"></i>
+      </button>
       <button class="topbar-btn topbar-btn-ghost" onclick="showToast('Notificaciones al día','ok')">
         <i class="ti ti-bell"></i>
       </button>
@@ -113,8 +127,11 @@
 
   <div class="app-layout">
 
+    <!-- SIDEBAR OVERLAY (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <!-- SIDEBAR -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
       <span class="sidebar-section-label">Principal</span>
 
       <div class="sidebar-item active" id="nav-tables" onclick="showSection('tables')">
@@ -313,11 +330,44 @@
             </div>
           </div>
 
+          <div class="table-toolbar" id="table-toolbar" style="display:none">
+            <div class="table-toolbar-left">
+              <div class="search-wrap">
+                <i class="ti ti-search"></i>
+                <input type="text" class="search-input" id="search-input" placeholder="Buscar en tabla..." oninput="searchTable()">
+              </div>
+            </div>
+            <span class="table-info" id="table-info">Mostrando 0 de 0 registros</span>
+          </div>
+
           <div class="table-wrap">
             <table class="data-table" id="report-table">
               <thead id="report-thead"></thead>
               <tbody id="report-tbody"></tbody>
             </table>
+          </div>
+
+          <div class="pagination" id="pagination" style="display:none">
+            <div class="pagination-info" id="pagination-info">Página 1 de 1</div>
+            <div class="pagination-pages" id="pagination-pages"></div>
+            <div class="pagination-size">
+              <select onchange="changePageSize(this.value)" aria-label="Filas por página">
+                <option value="5">5 filas</option>
+                <option value="10" selected>10 filas</option>
+                <option value="25">25 filas</option>
+                <option value="50">50 filas</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="skel-container" id="skel-table">
+            <div style="margin-top:16px">
+              <div class="skeleton-table-row"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+              <div class="skeleton-table-row"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+              <div class="skeleton-table-row"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+              <div class="skeleton-table-row"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+              <div class="skeleton-table-row"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+            </div>
           </div>
         </div>
       </section>
@@ -329,12 +379,16 @@
           <p>Indicadores y análisis visual de atenciones, beneficiarios y servicios</p>
         </div>
 
-        <div class="dashboard-kpi-row">
+        <div class="dashboard-kpi-row" id="kpi-row">
           <div class="stat-card">
             <div class="stat-icon red"><i class="ti ti-users"></i></div>
             <div class="stat-info">
               <div class="stat-value" id="kpi-atenciones">0</div>
               <div class="stat-label">Total Atenciones</div>
+              <div class="skel-container" id="skel-kpi-1">
+                <span class="skeleton skeleton-value"></span>
+                <span class="skeleton skeleton-text-sm"></span>
+              </div>
             </div>
           </div>
 
@@ -343,6 +397,10 @@
             <div class="stat-info">
               <div class="stat-value" id="kpi-beneficiarios">0</div>
               <div class="stat-label">Total Beneficiarios</div>
+              <div class="skel-container" id="skel-kpi-2">
+                <span class="skeleton skeleton-value"></span>
+                <span class="skeleton skeleton-text-sm"></span>
+              </div>
             </div>
           </div>
 
@@ -351,6 +409,10 @@
             <div class="stat-info">
               <div class="stat-value" id="kpi-servicios">0</div>
               <div class="stat-label">Servicios Activos</div>
+              <div class="skel-container" id="skel-kpi-3">
+                <span class="skeleton skeleton-value"></span>
+                <span class="skeleton skeleton-text-sm"></span>
+              </div>
             </div>
           </div>
 
@@ -359,6 +421,10 @@
             <div class="stat-info">
               <div class="stat-value" id="kpi-departamentos">0</div>
               <div class="stat-label">Departamentos</div>
+              <div class="skel-container" id="skel-kpi-4">
+                <span class="skeleton skeleton-value"></span>
+                <span class="skeleton skeleton-text-sm"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -367,26 +433,41 @@
           <div class="chart-card">
             <h3>¿Qué servicio atiende más beneficiarios?</h3>
             <canvas id="chartServicios"></canvas>
+            <div class="skel-container" id="skel-chart-1">
+              <span class="skeleton skeleton-chart"></span>
+            </div>
           </div>
 
           <div class="chart-card">
             <h3>¿Qué género predomina?</h3>
             <canvas id="chartGenero"></canvas>
+            <div class="skel-container" id="skel-chart-2">
+              <span class="skeleton skeleton-chart"></span>
+            </div>
           </div>
 
           <div class="chart-card">
             <h3>¿Qué grupo de edad recibe más atención?</h3>
             <canvas id="chartEdades"></canvas>
+            <div class="skel-container" id="skel-chart-3">
+              <span class="skeleton skeleton-chart"></span>
+            </div>
           </div>
 
           <div class="chart-card">
             <h3>¿En qué departamentos existe mayor demanda?</h3>
             <canvas id="chartDepartamentos"></canvas>
+            <div class="skel-container" id="skel-chart-4">
+              <span class="skeleton skeleton-chart"></span>
+            </div>
           </div>
 
           <div class="chart-card chart-card-wide">
             <h3>¿Qué diferencias existen entre los tres servicios?</h3>
             <canvas id="chartComparativo"></canvas>
+            <div class="skel-container" id="skel-chart-5">
+              <span class="skeleton skeleton-chart"></span>
+            </div>
           </div>
         </div>
       </section>
