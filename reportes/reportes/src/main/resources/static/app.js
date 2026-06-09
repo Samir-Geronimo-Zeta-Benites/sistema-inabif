@@ -215,7 +215,28 @@ async function doLogin() {
   }
 }
 
+/* ===================================================
+   USER MENU DROPDOWN
+   =================================================== */
+function toggleUserMenu(event) {
+  event.stopPropagation();
+  document.getElementById("user-menu").classList.toggle("open");
+}
+
+function closeUserMenu() {
+  document.getElementById("user-menu").classList.remove("open");
+}
+
+document.addEventListener("click", function (e) {
+  if (!e.target.closest(".topbar-user")) closeUserMenu();
+});
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") closeUserMenu();
+});
+
 function doLogout() {
+  closeUserMenu();
   document.getElementById("screen-dashboard").style.display = "none";
   document.getElementById("screen-login").style.display = "flex";
   document.getElementById("inp-user").value = "";

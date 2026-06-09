@@ -111,15 +111,30 @@
         <i class="ti ti-bell"></i>
       </button>
 
-      <div class="topbar-user">
+      <div class="topbar-user" onclick="toggleUserMenu(event)">
         <div class="topbar-avatar">AD</div>
         <div class="topbar-user-info">
           <div class="topbar-user-name">Administrador</div>
           <div class="topbar-user-role">INABIF · Lima</div>
         </div>
+        <i class="ti ti-chevron-down topbar-user-chevron"></i>
       </div>
 
-      <button class="topbar-btn" onclick="doLogout()">
+      <div class="user-menu" id="user-menu">
+        <div class="user-menu-header">
+          <div class="topbar-avatar">AD</div>
+          <div>
+            <div class="user-menu-name">Administrador</div>
+            <div class="user-menu-role">admin@inabif.gob.pe</div>
+          </div>
+        </div>
+        <div class="user-menu-divider"></div>
+        <div class="user-menu-item" onclick="doLogout()">
+          <i class="ti ti-logout"></i> Cerrar Sesión
+        </div>
+      </div>
+
+      <button class="topbar-btn topbar-btn-logout" onclick="doLogout()">
         <i class="ti ti-logout"></i> Salir
       </button>
     </div>

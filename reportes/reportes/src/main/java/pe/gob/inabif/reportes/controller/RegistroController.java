@@ -25,4 +25,34 @@ public class RegistroController {
             "message", "Registro guardado correctamente"
     );
   }
+
+  @PutMapping
+  public Map<String, Object> actualizar(@RequestBody RegistroRequest request) {
+    registroService.actualizarRegistro(request.getTabla(), request.getDatos());
+
+    return Map.of(
+            "success", true,
+            "message", "Registro actualizado correctamente"
+    );
+  }
+
+  @DeleteMapping
+  public Map<String, Object> eliminar(@RequestBody Map<String, Object> body) {
+    String tabla = (String) body.get("tabla");
+    String id = (String) body.get("id");
+
+    if (tabla == null || id == null) {
+      return Map.of(
+              "success", false,
+              "message", "Faltan parámetros: tabla e id son requeridos"
+      );
+    }
+
+    registroService.eliminarRegistro(tabla, id);
+
+    return Map.of(
+            "success", true,
+            "message", "Registro eliminado correctamente"
+    );
+  }
 }

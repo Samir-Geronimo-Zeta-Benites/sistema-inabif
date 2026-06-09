@@ -283,6 +283,22 @@ table.data-table .td-actions{text-align:center;white-space:nowrap}
 .theme-toggle{background:var(--bg-surface-hover);border:none;border-radius:var(--radius-full);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text-secondary);transition:var(--trans);flex-shrink:0}
 .theme-toggle:hover{background:var(--inabif-red-light);color:var(--inabif-red)}
 
+/* USER MENU DROPDOWN */
+.topbar-user{position:relative;cursor:pointer;gap:8px;padding:6px 10px 6px 8px;border-radius:var(--radius-md);transition:var(--trans)}
+.topbar-user:hover{background:var(--bg-surface-hover)}
+.topbar-user-chevron{font-size:14px;color:var(--inabif-gray-400);transition:var(--trans)}
+.topbar-user:hover .topbar-user-chevron{color:var(--inabif-gray-600)}
+.user-menu{position:absolute;top:calc(100% + 6px);right:0;min-width:220px;background:var(--bg-surface);border-radius:var(--radius-lg);border:1.5px solid var(--border-color);box-shadow:var(--shadow-lg);z-index:300;display:none;overflow:hidden;animation:slideDown .2s cubic-bezier(.4,0,.2,1)}
+.user-menu.open{display:block}
+.user-menu-header{padding:16px 18px;display:flex;align-items:center;gap:12px}
+.user-menu-header .topbar-avatar{width:40px;height:40px;font-size:15px}
+.user-menu-name{font-size:14px;font-weight:600;color:var(--inabif-gray-900)}
+.user-menu-role{font-size:12px;color:var(--inabif-gray-400)}
+.user-menu-divider{height:1px;background:var(--border-color);margin:0 12px}
+.user-menu-item{padding:12px 18px;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--inabif-gray-800);cursor:pointer;transition:var(--trans)}
+.user-menu-item:hover{background:var(--inabif-red-light);color:var(--inabif-red)}
+.user-menu-item i{font-size:18px}
+
 /* DARK — form inputs keep light bg & dark text */
 [data-theme="dark"] .form-input,
 [data-theme="dark"] .filter-select,
@@ -329,6 +345,12 @@ table.data-table .td-actions{text-align:center;white-space:nowrap}
 .skel-container{display:contents}
 .skel-container.hidden{display:none}
 
+/* Web: show avatar/info but hide chevron and dropdown (only show Salir button) */
+@media(min-width:901px){
+  .user-menu{display:none!important}
+  .topbar-user-chevron{display:none}
+}
+
 @media(max-width:900px){
   .login-image-panel{display:none}
   .sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:99;transition:left .3s cubic-bezier(.4,0,.2,1);display:flex;border-right:1px solid var(--border-color);box-shadow:var(--shadow-lg)}
@@ -338,5 +360,11 @@ table.data-table .td-actions{text-align:center;white-space:nowrap}
   .dashboard-grid{grid-template-columns:1fr}
   .modal-form-grid{grid-template-columns:1fr}
   .main-content{padding:20px}
-  .topbar{padding:0 16px}
+  .topbar{padding:0 12px}
+  .topbar-btn-logout{display:none}
+  .topbar-user-info{display:none}
+  .topbar-user-chevron{display:none}
+  .topbar-user{padding:4px}
+  .topbar-divider{display:none}
+  .topbar-title{display:none}
 }

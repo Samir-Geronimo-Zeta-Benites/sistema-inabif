@@ -73,4 +73,43 @@ public class RegistroService {
             datos.get("ID_USU")
     );
   }
+
+  public void actualizarRegistro(String tabla, Map<String, Object> datos) {
+    switch (tabla) {
+      case "Atendidos_Servicio":
+        String sql1 = """
+                UPDATE Atendidos_Servicio
+                SET FEC_ING = ?
+                WHERE ID_USU = ?
+                """;
+        jdbcTemplate.update(sql1, datos.get("FEC_ING"), datos.get("ID_USU"));
+        break;
+
+      case "Beneficiarios_Asistencia_clean":
+      case "Beneficiarios_Atendidos_clean":
+        break;
+
+      default:
+        throw new IllegalArgumentException("Tabla no permitida: " + tabla);
+    }
+  }
+
+  public void eliminarRegistro(String tabla, String id) {
+    switch (tabla) {
+      case "Atendidos_Servicio":
+        jdbcTemplate.update("DELETE FROM Atendidos_Servicio WHERE ID_USU = ?", id);
+        break;
+
+      case "Beneficiarios_Asistencia_clean":
+        jdbcTemplate.update("DELETE FROM Beneficiarios_Asistencia_clean WHERE ID_USU = ?", id);
+        break;
+
+      case "Beneficiarios_Atendidos_clean":
+        jdbcTemplate.update("DELETE FROM Beneficiarios_Atendidos_clean WHERE ID_USU = ?", id);
+        break;
+
+      default:
+        throw new IllegalArgumentException("Tabla no permitida: " + tabla);
+    }
+  }
 }
