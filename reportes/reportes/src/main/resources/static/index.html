@@ -350,6 +350,7 @@
               <div class="search-wrap">
                 <i class="ti ti-search"></i>
                 <input type="text" class="search-input" id="search-input" placeholder="Buscar en tabla..." oninput="searchTable()">
+                <button class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Limpiar búsqueda"><i class="ti ti-x"></i></button>
               </div>
             </div>
             <span class="table-info" id="table-info">Mostrando 0 de 0 registros</span>
@@ -523,7 +524,7 @@
 </div>
 
 <!-- TOAST -->
-<div class="toast" id="toast">
+<div class="toast" id="toast" onclick="dismissToast()">
   <i class="ti ti-circle-check" id="toast-icon"></i>
   <span id="toast-msg">Registro guardado exitosamente</span>
 </div>

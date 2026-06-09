@@ -3,6 +3,8 @@
    =================================================== */
 let currentModal = "";
 const REMEMBER_KEY = "inabif_remember_user";
+const USER_NAME_KEY = "inabif_user_name";
+const USER_EMAIL_KEY = "inabif_user_email";
 let loadingBar = null;
 let loadingCount = 0;
 
@@ -139,6 +141,11 @@ document.addEventListener("DOMContentLoaded", function () {
     updateThemeIcon(savedTheme);
   }
 
+  /* User data restore */
+  const savedName = localStorage.getItem(USER_NAME_KEY);
+  const savedEmail = localStorage.getItem(USER_EMAIL_KEY);
+  if (savedName) updateUserUI(savedName, savedEmail);
+
   /* Report filter restore */
   const savedTbl = localStorage.getItem("inabif_filter_table");
   const savedMon = localStorage.getItem("inabif_filter_month");
@@ -196,6 +203,13 @@ async function doLogin() {
       localStorage.removeItem(REMEMBER_KEY);
     }
 
+    /* Guardar datos del usuario */
+    const nombre = data.nombre || user;
+    const email = data.email || "";
+    localStorage.setItem(USER_NAME_KEY, nombre);
+    localStorage.setItem(USER_EMAIL_KEY, email);
+    updateUserUI(nombre, email);
+
     /* Transición */
     document.getElementById("screen-login").style.display = "none";
     const dash = document.getElementById("screen-dashboard");
@@ -235,6 +249,19 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") closeUserMenu();
 });
 
+function getInitials(name) {
+  if (!name) return "AD";
+  return name.split(/\s+/).map(w => w[0]).join("").toUpperCase().slice(0, 2) || "AD";
+}
+
+function updateUserUI(nombre, email) {
+  const initials = getInitials(nombre);
+  document.querySelectorAll(".topbar-avatar").forEach(el => el.textContent = initials);
+  document.querySelectorAll(".topbar-user-name").forEach(el => el.textContent = nombre);
+  document.querySelectorAll(".user-menu-name").forEach(el => el.textContent = nombre);
+  document.querySelectorAll(".user-menu-role, .topbar-user-role").forEach(el => el.textContent = email || "INABIF · Lima");
+}
+
 function doLogout() {
   closeUserMenu();
   document.getElementById("screen-dashboard").style.display = "none";
@@ -243,6 +270,8 @@ function doLogout() {
   document.getElementById("inp-pass").value = "";
   document.getElementById("remember-check").checked = false;
   localStorage.removeItem(REMEMBER_KEY);
+  localStorage.removeItem(USER_NAME_KEY);
+  localStorage.removeItem(USER_EMAIL_KEY);
   showToast("Sesión cerrada", "ok");
 }
 
@@ -471,6 +500,7 @@ function renderReportTable() {
   document.getElementById("table-toolbar").style.display = "flex";
   document.getElementById("pagination").style.display = "flex";
   document.getElementById("table-info").textContent = `Mostrando ${start + 1}-${end} de ${filteredRows.length} registros`;
+  toggleSearchClear();
 
   let thead = "<tr><th class=\"th-actions\">Acciones</th>";
   cols.forEach(col => thead += `<th>${escapeHtml(col)}</th>`);
@@ -509,10 +539,22 @@ function applySearch(rows) {
   });
 }
 
+function toggleSearchClear() {
+  const btn = document.getElementById("search-clear");
+  btn.classList.toggle("visible", document.getElementById("search-input").value.length > 0);
+}
+
 function searchTable() {
   reportData.filteredRows = applySearch(reportData.allRows);
   reportData.currentPage = 1;
   renderReportTable();
+  toggleSearchClear();
+}
+
+function clearSearch() {
+  document.getElementById("search-input").value = "";
+  toggleSearchClear();
+  searchTable();
 }
 
 /* ------- PAGINACIÓN ------- */
@@ -778,6 +820,12 @@ function showToast(msg, type) {
   clearTimeout(toastTimer);
   requestAnimationFrame(() => toast.classList.add("show"));
   toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+}
+
+function dismissToast() {
+  const toast = document.getElementById("toast");
+  toast.classList.remove("show");
+  clearTimeout(toastTimer);
 }
 
 function escapeHtml(value) {

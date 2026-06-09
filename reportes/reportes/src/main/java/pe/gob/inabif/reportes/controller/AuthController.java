@@ -18,7 +18,9 @@ public class AuthController {
 
     return Map.of(
             "success", correcto,
-            "message", correcto ? "Login correcto" : "Credenciales incorrectas"
+            "message", correcto ? "Login correcto" : "Credenciales incorrectas",
+            "nombre", correcto ? "Administrador" : "",
+            "email", correcto ? "admin@inabif.gob.pe" : ""
     );
   }
 }
